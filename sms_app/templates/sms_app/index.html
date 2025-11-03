@@ -1,0 +1,154 @@
+<!-- sms_app/templates/sms_app/index.html -->
+{% extends 'sms_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="page-title">Dashboard</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-primary">Export</button>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Total Students
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_students }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-primary"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Total Courses
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">{{ total_courses }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-book fa-2x text-success"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Active Enrollments
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">245</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clipboard-list fa-2x text-info"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                            Pending Tasks
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">18</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-tasks fa-2x text-warning"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Recent Activities</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex px-0">
+                        <div class="mr-3 flex-shrink-0">
+                            <i class="fas fa-user-plus text-success"></i>
+                        </div>
+                        <div>
+                            <span class="font-weight-bold">New student registered</span>
+                            <p class="text-muted mb-0">John Doe has been added to the system</p>
+                            <small class="text-muted">2 hours ago</small>
+                        </div>
+                    </div>
+                    <div class="list-group-item d-flex px-0">
+                        <div class="mr-3 flex-shrink-0">
+                            <i class="fas fa-book text-primary"></i>
+                        </div>
+                        <div>
+                            <span class="font-weight-bold">New course created</span>
+                            <p class="text-muted mb-0">Mathematics 101 has been added</p>
+                            <small class="text-muted">5 hours ago</small>
+                        </div>
+                    </div>
+                    <div class="list-group-item d-flex px-0">
+                        <div class="mr-3 flex-shrink-0">
+                            <i class="fas fa-chart-bar text-info"></i>
+                        </div>
+                        <div>
+                            <span class="font-weight-bold">Grades updated</span>
+                            <p class="text-muted mb-0">Final grades for Semester 1 have been published</p>
+                            <small class="text-muted">1 day ago</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if user.is_superuser %}
+                    <a href="{% url 'add_student' %}" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>Add New Student
+                    </a>
+                    <a href="{% url 'add_course' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-book me-2"></i>Add New Course
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'student_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list me-2"></i>View All Students
+                    </a>
+                    <a href="{% url 'course_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list me-2"></i>View All Courses
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

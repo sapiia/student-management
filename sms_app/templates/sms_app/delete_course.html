@@ -1,0 +1,45 @@
+<!-- sms_app/templates/sms_app/delete_course.html -->
+{% extends 'sms_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="page-title">Delete Course</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'course_detail' course.course_code %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Details
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Confirm Deletion</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Are you sure you want to delete the following course?</p>
+                <div class="alert alert-warning">
+                    <strong>Warning:</strong> This action cannot be undone. All related enrollments, grades, and attendance records will also be deleted.
+                </div>
+                <div class="mb-3">
+                    <strong>Course Code:</strong> {{ course.course_code }}<br>
+                    <strong>Course Name:</strong> {{ course.course_name }}<br>
+                    <strong>Credits:</strong> {{ course.credits }}
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'course_detail' course.course_code %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Yes, Delete Course
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

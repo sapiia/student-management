@@ -1,0 +1,101 @@
+<!-- sms_app/templates/sms_app/course_detail.html -->
+{% extends 'sms_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="page-title">Course Details</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'course_list' %}" class="btn btn-secondary me-2">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+        {% if user.is_superuser %}
+        <a href="{% url 'edit_course' course.course_code %}" class="btn btn-warning me-2">
+            <i class="fas fa-edit me-2"></i>Edit
+        </a>
+        <a href="{% url 'delete_course' course.course_code %}" class="btn btn-danger delete-btn">
+            <i class="fas fa-trash me-2"></i>Delete
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Course Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong><i class="fas fa-code me-2"></i>Course Code:</strong>
+                    <p class="mb-0">{{ course.course_code }}</p>
+                </div>
+                <div class="mb-3">
+                    <strong><i class="fas fa-book me-2"></i>Course Name:</strong>
+                    <p class="mb-0">{{ course.course_name }}</p>
+                </div>
+                <div class="mb-3">
+                    <strong><i class="fas fa-star me-2"></i>Credits:</strong>
+                    <p class="mb-0">{{ course.credits }}</p>
+                </div>
+                <div class="mb-3">
+                    <strong><i class="fas fa-user-tie me-2"></i>Instructor:</strong>
+                    <p class="mb-0">{{ course.instructor|default:"Not assigned" }}</p>
+                </div>
+                <div class="mb-0">
+                    <strong><i class="fas fa-info-circle me-2"></i>Description:</strong>
+                    <p class="mb-0">{{ course.description|default:"No description available" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Enrolled Students ({{ enrollments.count }})</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Enrollment Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for enrollment in enrollments %}
+                            <tr>
+                                <td>{{ enrollment.student.student_id }}</td>
+                                <td>
+                                    <a href="{% url 'student_detail' enrollment.student.student_id %}">
+                                        {{ enrollment.student.first_name }} {{ enrollment.student.last_name }}
+                                    </a>
+                                </td>
+                                <td>{{ enrollment.student.email }}</td>
+                                <td>{{ enrollment.enrollment_date }}</td>
+                                <td>
+                                    <a href="{% url 'student_detail' enrollment.student.student_id %}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="View Student">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">No students enrolled yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

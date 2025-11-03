@@ -1,0 +1,111 @@
+<!-- sms_app/templates/sms_app/student_detail.html -->
+{% extends 'sms_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="page-title">Student Details</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'student_list' %}" class="btn btn-secondary me-2">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+        {% if user.is_superuser %}
+        <a href="{% url 'edit_student' student.student_id %}" class="btn btn-warning me-2">
+            <i class="fas fa-edit me-2"></i>Edit
+        </a>
+        <a href="{% url 'delete_student' student.student_id %}" class="btn btn-danger delete-btn">
+            <i class="fas fa-trash me-2"></i>Delete
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                {% if student.profile_picture %}
+                <img src="{{ student.profile_picture.url }}" alt="{{ student.first_name }}" class="rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                {% else %}
+                <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px; font-size: 48px;">
+                    {{ student.first_name.0 }}{{ student.last_name.0 }}
+                </div>
+                {% endif %}
+                <h4>{{ student.first_name }} {{ student.last_name }}</h4>
+                <p class="text-muted">{{ student.student_id }}</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Personal Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong><i class="fas fa-envelope me-2"></i>Email:</strong>
+                    <p class="mb-0">{{ student.email }}</p>
+                </div>
+                <div class="mb-3">
+                    <strong><i class="fas fa-phone me-2"></i>Phone:</strong>
+                    <p class="mb-0">{{ student.phone|default:"N/A" }}</p>
+                </div>
+                <div class="mb-3">
+                    <strong><i class="fas fa-birthday-cake me-2"></i>Date of Birth:</strong>
+                    <p class="mb-0">{{ student.date_of_birth }}</p>
+                </div>
+                <div class="mb-3">
+                    <strong><i class="fas fa-calendar-alt me-2"></i>Enrollment Date:</strong>
+                    <p class="mb-0">{{ student.enrollment_date }}</p>
+                </div>
+                <div class="mb-0">
+                    <strong><i class="fas fa-map-marker-alt me-2"></i>Address:</strong>
+                    <p class="mb-0">{{ student.address|default:"N/A" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Enrolled Courses</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                                <th>Credits</th>
+                                <th>Instructor</th>
+                                <th>Enrollment Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for enrollment in enrollments %}
+                            <tr>
+                                <td>{{ enrollment.course.course_code }}</td>
+                                <td>
+                                    <a href="{% url 'course_detail' enrollment.course.course_code %}">
+                                        {{ enrollment.course.course_name }}
+                                    </a>
+                                </td>
+                                <td>{{ enrollment.course.credits }}</td>
+                                <td>{{ enrollment.course.instructor|default:"N/A" }}</td>
+                                <td>{{ enrollment.enrollment_date }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">No courses enrolled yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
