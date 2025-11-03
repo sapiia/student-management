@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+from django.contrib.auth.models import User, Group
 from .models import Student, Course, Enrollment, Grade, Attendance
 from .forms import StudentForm, CourseForm, EnrollmentForm, GradeForm, AttendanceForm
 
@@ -174,7 +175,11 @@ def add_enrollment(request):
 @login_required
 def grade_list(request):
     grades = Grade.objects.all()
-    return render(request, 'sms_app/grades.html', {'grades': grades})
+    can_add_grade = is_admin(request.user) or is_teacher(request.user)
+    return render(request, 'sms_app/grades.html', {
+        'grades': grades,
+        'can_add_grade': can_add_grade
+    })
 
 @login_required
 @user_passes_test(lambda u: is_admin(u) or is_teacher(u))
@@ -210,5 +215,42 @@ def add_attendance(request):
             return redirect('attendance_list')
     else:
         form = AttendanceForm()
-    
+
     return render(request, 'sms_app/add_attendance.html', {'form': form})
+
+@login_required
+def instructor_list(request):
+    # Get all users in the Teachers group
+    teachers_group = Group.objects.filter(name='Teachers').first()
+    if teachers_group:
+        instructors = teachers_group.user_set.all()
+    else:
+        instructors = User.objects.none()
+
+    # Also include superusers who might be instructors
+    all_instructors = User.objects.filter(is_staff=True) | instructors
+    all_instructors = all_instructors.distinct()
+
+    # Add role information to each instructor
+    instructors_with_roles = []
+    for instructor in all_instructors:
+        is_teacher = instructor.groups.filter(name='Teachers').exists()
+        instructors_with_roles.append({
+            'user': instructor,
+            'is_teacher': is_teacher,
+            'course_count': instructor.course_set.count()
+        })
+
+    return render(request, 'sms_app/instructors.html', {'instructors': instructors_with_roles})
+
+@login_required
+def instructor_detail(request, instructor_id):
+    instructor = get_object_or_404(User, id=instructor_id)
+    courses = Course.objects.filter(instructor=instructor)
+    is_teacher = instructor.groups.filter(name='Teachers').exists()
+
+    return render(request, 'sms_app/instructor_detail.html', {
+        'instructor': instructor,
+        'courses': courses,
+        'is_teacher': is_teacher
+    })

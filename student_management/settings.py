@@ -63,8 +63,15 @@ DATABASES = {
         'PASSWORD': '',           # XAMPP default password (empty)
         'HOST': 'localhost',
         'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
+
+# Disable database version check for MariaDB 10.4
+import django.db.backends.mysql.base
+django.db.backends.mysql.base.DatabaseWrapper.check_database_version_supported = lambda self: None
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

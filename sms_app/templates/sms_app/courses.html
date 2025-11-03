@@ -1,0 +1,102 @@
+<!-- sms_app/templates/sms_app/courses.html -->
+{% extends 'sms_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="page-title">Courses</h1>
+    {% if user.is_superuser %}
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'add_course' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Add New Course
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Course List</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Course Code</th>
+                        <th>Course Name</th>
+                        <th>Credits</th>
+                        <th>Instructor</th>
+                        <th>Department</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td>{{ course.course_code }}</td>
+                        <td>
+                            <a href="{% url 'course_detail' course.course_code %}">
+                                {{ course.course_name }}
+                            </a>
+                        </td>
+                        <td>{{ course.credits }}</td>
+                        <td>{{ course.instructor|default:"Not assigned" }}</td>
+                        <td>
+                            <a href="{% url 'course_detail' course.course_code %}" class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            {% if user.is_superuser %}
+                            <a href="{% url 'edit_course' course.course_code %}" class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'delete_course' course.course_code %}" class="btn btn-sm btn-danger delete-btn" data-bs-toggle="tooltip" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No courses found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

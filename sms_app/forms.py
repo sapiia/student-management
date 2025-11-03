@@ -1,5 +1,6 @@
 # sms_app/forms.py
 from django import forms
+from django.contrib.auth.models import User
 from .models import Student, Course, Enrollment, Grade, Attendance
 
 class StudentForm(forms.ModelForm):
@@ -18,6 +19,10 @@ class StudentForm(forms.ModelForm):
         }
 
 class CourseForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['instructor'].queryset = User.objects.filter(groups__name='Teachers')
+
     class Meta:
         model = Course
         fields = '__all__'

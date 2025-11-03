@@ -136,12 +136,19 @@
                     <a href="{% url 'add_student' %}" class="btn btn-primary">
                         <i class="fas fa-user-plus me-2"></i>Add New Student
                     </a>
+                    <a href="{% url 'add_student' %}" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>Add New Instructor
+                    </a>
                     <a href="{% url 'add_course' %}" class="btn btn-outline-primary">
                         <i class="fas fa-book me-2"></i>Add New Course
                     </a>
+                
                     {% endif %}
                     <a href="{% url 'student_list' %}" class="btn btn-outline-secondary">
                         <i class="fas fa-list me-2"></i>View All Students
+                    </a>
+                    <a href="{% url 'instructor_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list me-2"></i>View All Instructors
                     </a>
                     <a href="{% url 'course_list' %}" class="btn btn-outline-secondary">
                         <i class="fas fa-list me-2"></i>View All Courses

@@ -32,4 +32,8 @@ urlpatterns = [
     # Attendance URLs
     path('attendance/', views.attendance_list, name='attendance_list'),
     path('attendance/add/', views.add_attendance, name='add_attendance'),
+
+    # Instructor URLs
+    path('instructors/', views.instructor_list, name='instructor_list'),
+    path('instructors/<int:instructor_id>/', views.instructor_detail, name='instructor_detail'),
 ]

@@ -1,0 +1,68 @@
+<!-- sms_app/templates/sms_app/grades.html -->
+{% extends 'sms_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="page-title">Grades</h1>
+    {% if can_add_grade %}
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'add_grade' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Add New Grade
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0">Grade List</h5>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Student Name</th>
+                        <th>Course Code</th>
+                        <th>Course Name</th>
+                        <th>Semester</th>
+                        <th>Academic Year</th>
+                        <th>Grade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for grade in grades %}
+                    <tr>
+                        <td>{{ grade.enrollment.student.student_id }}</td>
+                        <td>
+                            <a href="{% url 'student_detail' grade.enrollment.student.student_id %}">
+                                {{ grade.enrollment.student.first_name }} {{ grade.enrollment.student.last_name }}
+                            </a>
+                        </td>
+                        <td>{{ grade.enrollment.course.course_code }}</td>
+                        <td>
+                            <a href="{% url 'course_detail' grade.enrollment.course.course_code %}">
+                                {{ grade.enrollment.course.course_name }}
+                            </a>
+                        </td>
+                        <td>{{ grade.semester }}</td>
+                        <td>{{ grade.academic_year }}</td>
+                        <td>
+                            <span class="badge {% if grade.grade == 'A' %}bg-success{% elif grade.grade == 'B' %}bg-primary{% elif grade.grade == 'C' %}bg-info{% elif grade.grade == 'D' %}bg-warning{% else %}bg-danger{% endif %}">
+                                {{ grade.grade }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No grades found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

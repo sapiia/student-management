@@ -1,0 +1,155 @@
+<!-- sms_app/templates/sms_app/instructor_detail.html -->
+{% extends 'sms_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="page-title">Instructor Details</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'instructor_list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Instructor Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <div class="avatar-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 100px; height: 100px; border-radius: 50%; font-size: 2.5rem;">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                </div>
+                <table class="table table-sm">
+                    <tr>
+                        <th>Username:</th>
+                        <td>{{ instructor.username }}</td>
+                    </tr>
+                    <tr>
+                        <th>Full Name:</th>
+                        <td>{{ instructor.get_full_name|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Email:</th>
+                        <td>{{ instructor.email|default:"-" }}</td>
+                    </tr>
+                    <tr>
+                        <th>Role:</th>
+                        <td>
+                            {% if instructor.is_superuser %}
+                                <span class="badge bg-danger">Admin</span>
+                            {% elif is_teacher %}
+                                <span class="badge bg-primary">Teacher</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Staff</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Status:</th>
+                        <td>
+                            {% if instructor.is_active %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Date Joined:</th>
+                        <td>{{ instructor.date_joined|date:"M d, Y" }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Courses Taught</h5>
+            </div>
+            <div class="card-body">
+                {% if courses %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Course Code</th>
+                                <th>Course Name</th>
+                                <th>Credits</th>
+                                <th>Enrolled Students</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for course in courses %}
+                            <tr>
+                                <td>{{ course.course_code }}</td>
+                                <td>{{ course.course_name }}</td>
+                                <td>{{ course.credits }}</td>
+                                <td>
+                                    <span class="badge bg-info">{{ course.enrollment_set.count }} student(s)</span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'course_detail' course.course_code %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>This instructor is not currently assigned to any courses.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <h3 class="text-primary">{{ courses.count }}</h3>
+                            <p class="text-muted">Total Courses</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <h3 class="text-success">
+                                {% widthratio courses 1 1 as total_enrollments %}
+                                {{ total_enrollments|default:0 }}
+                            </h3>
+                            <p class="text-muted">Total Students</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <h3 class="text-info">
+                                {% widthratio courses 1 1 as total_credits %}
+                                {% for course in courses %}
+                                    {% widthratio course.credits 1 1 as credits %}
+                                {% endfor %}
+                                {{ total_credits|default:0 }}
+                            </h3>
+                            <p class="text-muted">Total Credits</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
