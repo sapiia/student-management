@@ -35,6 +35,13 @@ class CourseForm(forms.ModelForm):
         }
 
 class EnrollmentForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Limit students to those currently enrolled (optional, but useful for editing)
+        if self.instance and self.instance.pk:
+            # When editing, keep the current student selected
+            pass
+
     class Meta:
         model = Enrollment
         fields = ['student', 'course']
@@ -44,6 +51,13 @@ class EnrollmentForm(forms.ModelForm):
         }
 
 class GradeForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Limit enrollments to existing ones
+        if self.instance and self.instance.pk:
+            # When editing, keep the current enrollment selected
+            pass
+
     class Meta:
         model = Grade
         fields = '__all__'
@@ -55,6 +69,13 @@ class GradeForm(forms.ModelForm):
         }
 
 class AttendanceForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Limit enrollments to existing ones
+        if self.instance and self.instance.pk:
+            # When editing, keep the current enrollment selected
+            pass
+
     class Meta:
         model = Attendance
         fields = '__all__'
@@ -63,3 +84,29 @@ class AttendanceForm(forms.ModelForm):
             'date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
         }
+
+class InstructorForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    is_teacher = forms.BooleanField(required=False, label="Assign as Teacher")
+
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email', 'is_staff', 'is_superuser']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'is_staff': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_superuser': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password'])
+        if commit:
+            user.save()
+            if self.cleaned_data['is_teacher']:
+                teachers_group, created = Group.objects.get_or_create(name='Teachers')
+                user.groups.add(teachers_group)
+        return user

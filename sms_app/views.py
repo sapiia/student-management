@@ -4,8 +4,10 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import User, Group
+from django.db import models
 from .models import Student, Course, Enrollment, Grade, Attendance
-from .forms import StudentForm, CourseForm, EnrollmentForm, GradeForm, AttendanceForm
+from .forms import StudentForm, CourseForm, EnrollmentForm, GradeForm, AttendanceForm, InstructorForm
+from django import forms
 
 def is_admin(user):
     return user.is_superuser
@@ -38,10 +40,12 @@ def user_logout(request):
 def dashboard(request):
     total_students = Student.objects.count()
     total_courses = Course.objects.count()
-    
+    can_add_grade = is_admin(request.user) or is_teacher(request.user)
+
     context = {
         'total_students': total_students,
         'total_courses': total_courses,
+        'can_add_grade': can_add_grade,
     }
     return render(request, 'sms_app/index.html', context)
 
@@ -102,7 +106,27 @@ def delete_student(request, student_id):
 @login_required
 def course_list(request):
     courses = Course.objects.all()
-    return render(request, 'sms_app/courses.html', {'courses': courses})
+
+    # Handle search and filter
+    search_query = request.GET.get('search', '')
+    instructor_id = request.GET.get('instructor', '')
+
+    if search_query:
+        courses = courses.filter(
+            models.Q(course_code__icontains=search_query) |
+            models.Q(course_name__icontains=search_query)
+        )
+
+    if instructor_id:
+        courses = courses.filter(instructor_id=instructor_id)
+
+    # Get all instructors for the filter dropdown
+    instructors = User.objects.filter(groups__name='Teachers').distinct()
+
+    return render(request, 'sms_app/courses.html', {
+        'courses': courses,
+        'instructors': instructors
+    })
 
 @login_required
 def course_detail(request, course_code):
@@ -156,7 +180,37 @@ def delete_course(request, course_code):
 @login_required
 def enrollment_list(request):
     enrollments = Enrollment.objects.all()
-    return render(request, 'sms_app/enrollments.html', {'enrollments': enrollments})
+    can_manage_enrollment = is_admin(request.user) or is_teacher(request.user)
+    return render(request, 'sms_app/enrollments.html', {
+        'enrollments': enrollments,
+        'can_manage_enrollment': can_manage_enrollment
+    })
+
+@login_required
+@user_passes_test(is_admin)
+def edit_enrollment(request, enrollment_id):
+    enrollment = get_object_or_404(Enrollment, id=enrollment_id)
+    if request.method == 'POST':
+        form = EnrollmentForm(request.POST, instance=enrollment)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Enrollment updated successfully')
+            return redirect('enrollment_list')
+    else:
+        form = EnrollmentForm(instance=enrollment)
+
+    return render(request, 'sms_app/edit_enrollment.html', {'form': form, 'enrollment': enrollment})
+
+@login_required
+@user_passes_test(is_admin)
+def delete_enrollment(request, enrollment_id):
+    enrollment = get_object_or_404(Enrollment, id=enrollment_id)
+    if request.method == 'POST':
+        enrollment.delete()
+        messages.success(request, 'Enrollment deleted successfully')
+        return redirect('enrollment_list')
+
+    return render(request, 'sms_app/delete_enrollment.html', {'enrollment': enrollment})
 
 @login_required
 @user_passes_test(is_admin)
@@ -176,9 +230,11 @@ def add_enrollment(request):
 def grade_list(request):
     grades = Grade.objects.all()
     can_add_grade = is_admin(request.user) or is_teacher(request.user)
+    can_edit_grade = can_add_grade
     return render(request, 'sms_app/grades.html', {
         'grades': grades,
-        'can_add_grade': can_add_grade
+        'can_add_grade': can_add_grade,
+        'can_edit_grade': can_edit_grade
     })
 
 @login_required
@@ -192,16 +248,44 @@ def add_grade(request):
             return redirect('grade_list')
     else:
         form = GradeForm()
-    
+
     return render(request, 'sms_app/add_grade.html', {'form': form})
+
+@login_required
+@user_passes_test(lambda u: is_admin(u) or is_teacher(u))
+def edit_grade(request, grade_id):
+    grade = get_object_or_404(Grade, id=grade_id)
+    if request.method == 'POST':
+        form = GradeForm(request.POST, instance=grade)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Grade updated successfully')
+            return redirect('grade_list')
+    else:
+        form = GradeForm(instance=grade)
+
+    return render(request, 'sms_app/edit_grade.html', {'form': form, 'grade': grade})
+
+@login_required
+@user_passes_test(lambda u: is_admin(u) or is_teacher(u))
+def delete_grade(request, grade_id):
+    grade = get_object_or_404(Grade, id=grade_id)
+    if request.method == 'POST':
+        grade.delete()
+        messages.success(request, 'Grade deleted successfully')
+        return redirect('grade_list')
+
+    return render(request, 'sms_app/delete_grade.html', {'grade': grade})
 
 @login_required
 def attendance_list(request):
     attendances = Attendance.objects.all()
     can_add_attendance = is_admin(request.user) or is_teacher(request.user)
+    can_edit_attendance = can_add_attendance
     return render(request, 'sms_app/attendance.html', {
         'attendances': attendances,
-        'can_add_attendance': can_add_attendance
+        'can_add_attendance': can_add_attendance,
+        'can_edit_attendance': can_edit_attendance
     })
 
 @login_required
@@ -217,6 +301,32 @@ def add_attendance(request):
         form = AttendanceForm()
 
     return render(request, 'sms_app/add_attendance.html', {'form': form})
+
+@login_required
+@user_passes_test(lambda u: is_admin(u) or is_teacher(u))
+def edit_attendance(request, attendance_id):
+    attendance = get_object_or_404(Attendance, id=attendance_id)
+    if request.method == 'POST':
+        form = AttendanceForm(request.POST, instance=attendance)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Attendance updated successfully')
+            return redirect('attendance_list')
+    else:
+        form = AttendanceForm(instance=attendance)
+
+    return render(request, 'sms_app/edit_attendance.html', {'form': form, 'attendance': attendance})
+
+@login_required
+@user_passes_test(lambda u: is_admin(u) or is_teacher(u))
+def delete_attendance(request, attendance_id):
+    attendance = get_object_or_404(Attendance, id=attendance_id)
+    if request.method == 'POST':
+        attendance.delete()
+        messages.success(request, 'Attendance record deleted successfully')
+        return redirect('attendance_list')
+
+    return render(request, 'sms_app/delete_attendance.html', {'attendance': attendance})
 
 @login_required
 def instructor_list(request):
@@ -254,3 +364,56 @@ def instructor_detail(request, instructor_id):
         'courses': courses,
         'is_teacher': is_teacher
     })
+
+@login_required
+@user_passes_test(is_admin)
+def add_instructor(request):
+    if request.method == 'POST':
+        form = InstructorForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Instructor added successfully')
+            return redirect('instructor_list')
+    else:
+        form = InstructorForm()
+
+    return render(request, 'sms_app/add_instructor.html', {'form': form})
+
+@login_required
+@user_passes_test(is_admin)
+def edit_instructor(request, instructor_id):
+    instructor = get_object_or_404(User, id=instructor_id)
+    if request.method == 'POST':
+        form = InstructorForm(request.POST, instance=instructor)
+        # Don't allow password change in edit
+        form.fields['password'].required = False
+        form.fields['password'].widget = forms.HiddenInput()
+        if form.is_valid():
+            user = form.save(commit=False)
+            # Handle teacher group assignment
+            teachers_group, created = Group.objects.get_or_create(name='Teachers')
+            if form.cleaned_data['is_teacher']:
+                user.groups.add(teachers_group)
+            else:
+                user.groups.remove(teachers_group)
+            user.save()
+            messages.success(request, 'Instructor updated successfully')
+            return redirect('instructor_list')
+    else:
+        form = InstructorForm(instance=instructor)
+        form.fields['password'].required = False
+        form.fields['password'].widget = forms.HiddenInput()
+        form.initial['is_teacher'] = instructor.groups.filter(name='Teachers').exists()
+
+    return render(request, 'sms_app/edit_instructor.html', {'form': form, 'instructor': instructor})
+
+@login_required
+@user_passes_test(is_admin)
+def delete_instructor(request, instructor_id):
+    instructor = get_object_or_404(User, id=instructor_id)
+    if request.method == 'POST':
+        instructor.delete()
+        messages.success(request, 'Instructor deleted successfully')
+        return redirect('instructor_list')
+
+    return render(request, 'sms_app/delete_instructor.html', {'instructor': instructor})

@@ -136,13 +136,23 @@
                     <a href="{% url 'add_student' %}" class="btn btn-primary">
                         <i class="fas fa-user-plus me-2"></i>Add New Student
                     </a>
-                    <a href="{% url 'add_student' %}" class="btn btn-primary">
+                    <a href="{% url 'add_instructor' %}" class="btn btn-primary">
                         <i class="fas fa-user-plus me-2"></i>Add New Instructor
                     </a>
                     <a href="{% url 'add_course' %}" class="btn btn-outline-primary">
                         <i class="fas fa-book me-2"></i>Add New Course
                     </a>
-                
+                    <a href="{% url 'add_enrollment' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-clipboard-list me-2"></i>Add New Enrollment
+                    </a>
+                    {% if can_add_grade %}
+                    <a href="{% url 'add_grade' %}" class="btn btn-outline-success">
+                        <i class="fas fa-graduation-cap me-2"></i>Add New Grade
+                    </a>
+                    <a href="{% url 'add_attendance' %}" class="btn btn-outline-info">
+                        <i class="fas fa-calendar-check me-2"></i>Record Attendance
+                    </a>
+                    {% endif %}
                     {% endif %}
                     <a href="{% url 'student_list' %}" class="btn btn-outline-secondary">
                         <i class="fas fa-list me-2"></i>View All Students
@@ -152,6 +162,15 @@
                     </a>
                     <a href="{% url 'course_list' %}" class="btn btn-outline-secondary">
                         <i class="fas fa-list me-2"></i>View All Courses
+                    </a>
+                    <a href="{% url 'enrollment_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list me-2"></i>View All Enrollments
+                    </a>
+                    <a href="{% url 'grade_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list me-2"></i>View All Grades
+                    </a>
+                    <a href="{% url 'attendance_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-list me-2"></i>View All Attendance
                     </a>
                 </div>
             </div>

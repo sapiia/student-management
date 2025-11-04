@@ -1,0 +1,48 @@
+<!-- sms_app/templates/sms_app/delete_enrollment.html -->
+{% extends 'sms_app/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+    <h1 class="page-title">Delete Enrollment</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{% url 'enrollment_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Deletion
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-center mb-4">
+                    Are you sure you want to delete this enrollment?
+                </p>
+                <div class="alert alert-warning">
+                    <strong>Student:</strong> {{ enrollment.student.first_name }} {{ enrollment.student.last_name }} ({{ enrollment.student.student_id }})<br>
+                    <strong>Course:</strong> {{ enrollment.course.course_name }} ({{ enrollment.course.course_code }})<br>
+                    <strong>Enrollment Date:</strong> {{ enrollment.enrollment_date }}
+                </div>
+                <p class="text-danger mb-4">
+                    <strong>Warning:</strong> This action cannot be undone. All related grades and attendance records for this enrollment will also be deleted.
+                </p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{% url 'enrollment_list' %}" class="btn btn-secondary">Cancel</a>
+                    <form method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash me-2"></i>Yes, Delete Enrollment
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
