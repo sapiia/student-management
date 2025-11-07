@@ -1,6 +1,6 @@
 # sms_app/forms.py
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from .models import Student, Course, Enrollment, Grade, Attendance
 
 class StudentForm(forms.ModelForm):
